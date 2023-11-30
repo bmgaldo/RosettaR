@@ -57,7 +57,8 @@
 rosetta = function(d,
                    factor_structure,
                    missing_corr = 'normal',
-                   id_colnames = NULL) {
+                   id_colnames = NULL,
+                   CV_colname = NULL) {
   # Check arguments
   if(!all(unlist(lapply(d, is.data.frame)))) {
     stop("Check the 'd' argument in function rosetta::rosetta(). 'd' needs to be a list of dataframes.")
@@ -78,7 +79,7 @@ rosetta = function(d,
   # step 1. unconstrained model
   ## lavaan RAM text
   lavaan_model =
-    get_lavaan_model_text(factor_structure)
+    get_lavaan_model_text(factor_structure,CV_name = CV_colname)
 
   ## if the dataset has a measure not shared by at least two sub-datasets, then the correlation matrix will have missing values
   ## while we could test the dataset for this, instead we force the user to specify if they want the missing correlations
@@ -237,7 +238,7 @@ rosetta = function(d,
 }
 
 # Returns a character vector of the 'RAM' model for rosetta
-get_lavaan_model_text = function(factor_structure,lavaan_obj=NULL) {
+get_lavaan_model_text = function(factor_structure,lavaan_obj=NULL,CV_name=NULL) {
 
   ## check arguments
   if(length(names(factor_structure)) != length(factor_structure) || any(names(factor_structure) == "")) {
@@ -261,6 +262,11 @@ get_lavaan_model_text = function(factor_structure,lavaan_obj=NULL) {
       factor_variance = paste0(factor_names[i]," ~~ 1*", factor_names[i])
 
       lavaan_text = c(lavaan_text, factor_variance)
+    }
+    if(!is.null(CV_name)){
+      lavaan_text = c(lavaan_text,
+                      paste0(factor_names[i]," ~ ", CV_name)
+                      )
     }
   }
 

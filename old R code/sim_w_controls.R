@@ -174,3 +174,9 @@ sim_missing <- function(complete, factor_structure) {
 
   missing
 }
+
+
+
+
+
+
